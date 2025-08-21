@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>View Attendance</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+      width: 400px;
+      text-align: center;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    input {
+      width: 80%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    button {
+      background: #4facfe;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #00c6ff;
+    }
+
+    #attendance {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 15px;
+      color: #444;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    ul li {
+      background: #f0f8ff;
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+
+    .back-btn {
+      margin-top: 20px;
+      background: #555;
+    }
+
+    .back-btn:hover {
+      background: #333;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📊 Your Attendance</h2>
+
+    <div id="attendance">Enter Student ID to check attendance</div>
+
+    <h3>Check by Student ID</h3>
+    <input type="number" id="studentId" placeholder="Enter your ID">
+    <br>
+    <button onclick="loadAttendanceById()">Check Attendance</button>
+
+    <br><br>
+    <button class="back-btn" onclick="goBack()">⬅ Back to Dashboard</button>
+  </div>
+
+  <script>
+    function loadAttendanceById() {
+      const id = document.getElementById("studentId").value.trim();
+      if (!id) { alert("Please enter your Student ID"); return; }
+
+      fetch(`http://localhost:8081/student/${id}/attendance`)
+      .then(response => {
+        if (!response.ok) throw new Error("No attendance found for given ID");
+        return response.json();
+      })
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          let result = "<ul>";
+          data.forEach(a => {
+            result += `<li>${a.studentName} → ${a.attendancePercent}%</li>`;
+          });
+          result += "</ul>";
+          document.getElementById("attendance").innerHTML = result;
+        } else {
+          document.getElementById("attendance").innerText = "No attendance found.";
+        }
+      })
+      .catch(err => {
+        document.getElementById("attendance").innerText = "❌ " + err.message;
+      });
+    }
+
+    function goBack() { window.location.href = "student.html"; }
+  </script>
+</body>
+</html>

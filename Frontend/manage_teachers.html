@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manage Teachers</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-green-900 via-emerald-800 to-black min-h-screen flex items-center justify-center text-white">
+  <div class="bg-white/10 p-8 rounded-2xl shadow-xl w-[600px]">
+    <h1 class="text-3xl font-bold text-center mb-6 text-green-400">👨‍🏫 Manage Teachers</h1>
+
+    <!-- Add Teacher -->
+    <form id="addTeacherForm" class="mb-6">
+      <div class="grid grid-cols-2 gap-4">
+        <input type="text" id="teacherName" placeholder="Teacher Name" class="p-2 rounded bg-gray-800 text-white">
+        <input type="email" id="teacherEmail" placeholder="Email" class="p-2 rounded bg-gray-800 text-white">
+      </div>
+      <input type="password" id="teacherPassword" placeholder="Password" class="p-2 rounded bg-gray-800 text-white w-full mt-4">
+      <button type="submit" class="w-full mt-4 bg-green-500 hover:bg-green-600 py-2 rounded-lg font-bold">➕ Add Teacher</button>
+    </form>
+
+    <!-- Teacher List -->
+    <h2 class="text-xl mb-3 text-yellow-400">Teacher List</h2>
+    <ul id="teacherList" class="space-y-2"></ul>
+  </div>
+
+  <script>
+    const teacherForm = document.getElementById("addTeacherForm");
+    const teacherList = document.getElementById("teacherList");
+
+    teacherForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("teacherName").value;
+      const email = document.getElementById("teacherEmail").value;
+      const password = document.getElementById("teacherPassword").value;
+
+      const res = await fetch("http://localhost:8081/admin/addTeacher", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      alert(await res.text());
+      loadTeachers();
+    });
+
+    async function loadTeachers() {
+      const res = await fetch("http://localhost:8081/admin/teachers");
+      const teachers = await res.json();
+      teacherList.innerHTML = "";
+      teachers.forEach(t => {
+        const li = document.createElement("li");
+        li.className = "bg-gray-800 p-2 rounded flex justify-between items-center";
+        li.innerHTML = `<span>${t.name} (${t.email})</span>
+          <button onclick="deleteTeacher(${t.id})" class='text-red-400 hover:text-red-600'>🗑️</button>`;
+        teacherList.appendChild(li);
+      });
+    }
+
+    async function deleteTeacher(id) {
+      await fetch(`http://localhost:8081/admin/deleteTeacher/${id}`, { method: "DELETE" });
+      loadTeachers();
+    }
+
+    loadTeachers();
+  </script>
+</body>
+</html>

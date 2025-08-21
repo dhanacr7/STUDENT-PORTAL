@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>View Marks</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      width: 420px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+    h2 {
+      margin-bottom: 15px;
+      color: #4a4a4a;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      width: 80%;
+    }
+    button {
+      background: #667eea;
+      color: white;
+      cursor: pointer;
+      border: none;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #5563c1;
+    }
+    #marksList {
+      margin-top: 15px;
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    .back-btn {
+      margin-top: 15px;
+      background: #ff6b6b;
+    }
+    .back-btn:hover {
+      background: #e05555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📄 Your Exam Results</h2>
+    <input type="number" id="studentId" placeholder="Enter your Student ID">
+    <button id="checkBtn">Check Marks</button>
+
+    <div id="marksList"></div>
+
+    <button class="back-btn" onclick="goBack()">⬅ Back to Dashboard</button>
+  </div>
+
+  <script>
+    document.getElementById("checkBtn").addEventListener("click", loadMarksById);
+
+    function loadMarksById() {
+      const id = document.getElementById("studentId").value.trim();
+      if (!id) { alert("Please enter your Student ID"); return; }
+
+      fetch(`http://localhost:8081/student/${id}/marks`)
+        .then(response => {
+          if (!response.ok) throw new Error("No marks found for given ID (status " + response.status + ")");
+          return response.json();
+        })
+        .then(data => {
+          if (Array.isArray(data) && data.length > 0) {
+            let html = "<ul>";
+            data.forEach(m => {
+              html += `<li><b>Subject:</b> ${m.subject ? m.subject : "N/A"}<br><b>Student:</b> ${m.studentName}<br><b>Marks:</b> ${m.marks}</li><hr>`;
+            });
+            html += "</ul>";
+            document.getElementById("marksList").innerHTML = html;
+          } else {
+            document.getElementById("marksList").innerText = "No marks found.";
+          }
+        })
+        .catch(err => {
+          document.getElementById("marksList").innerText = "❌ " + err.message;
+        });
+    }
+
+    function goBack() {
+      window.location.href = "student.html"; // adjust as needed
+    }
+  </script>
+</body>
+</html>

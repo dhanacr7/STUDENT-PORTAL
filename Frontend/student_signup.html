@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Signup</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+      width: 350px;
+      text-align: center;
+    }
+    h2 { color: #333; margin-bottom: 20px; }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      width: 95%;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #4facfe;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover { background: #00c6fb; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📝 Student Signup</h2>
+    <form onsubmit="event.preventDefault(); signupStudent();">
+      <input type="text" id="studentName" placeholder="Full Name" required><br>
+      <input type="email" id="studentEmail" placeholder="Email" required><br>
+      <input type="password" id="studentPassword" placeholder="Password" required><br>
+      <button type="submit">Sign Up</button>
+    </form>
+  </div>
+
+  <script>
+    function signupStudent() {
+      const studentData = {
+        name: document.getElementById("studentName").value,
+        email: document.getElementById("studentEmail").value,
+        password: document.getElementById("studentPassword").value
+      };
+
+      fetch("http://localhost:8081/student/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(studentData)
+      })
+      .then(response => response.text())
+      .then(data => alert("✅ " + data))
+      .catch(error => console.error("Error:", error));
+    }
+  </script>
+</body>
+</html>
