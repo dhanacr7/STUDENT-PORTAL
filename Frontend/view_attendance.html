@@ -2,113 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>View Attendance</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #4facfe, #00f2fe);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .container {
-      background: #fff;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-      width: 400px;
-      text-align: center;
-      animation: fadeIn 0.8s ease-in-out;
-    }
-
-    h2 {
-      margin-bottom: 20px;
-      color: #333;
-    }
-
-    input {
-      width: 80%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    button {
-      background: #4facfe;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      margin-top: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      background: #00c6ff;
-    }
-
-    #attendance {
-      margin-top: 20px;
-      text-align: left;
-      font-size: 15px;
-      color: #444;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    ul li {
-      background: #f0f8ff;
-      margin: 5px 0;
-      padding: 8px;
-      border-radius: 6px;
-      font-weight: bold;
-    }
-
-    .back-btn {
-      margin-top: 20px;
-      background: #555;
-    }
-
-    .back-btn:hover {
-      background: #333;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
-    <h2>📊 Your Attendance</h2>
+  <div class="container" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+    <div class="card fade-in" style="max-width: 500px; width: 100%;">
+      <div class="text-center mb-4">
+        <h2>📊 Your Attendance</h2>
+        <p style="color: #718096;">Track your class attendance</p>
+      </div>
 
-    <div id="attendance">Enter Student ID to check attendance</div>
+      <div class="form-group">
+        <input type="number" id="studentId" placeholder="🆔 Enter your Student ID" class="form-control">
+      </div>
+      
+      <button onclick="loadAttendanceById()" class="btn btn-success btn-block">
+        📈 Check My Attendance
+      </button>
 
-    <h3>Check by Student ID</h3>
-    <input type="number" id="studentId" placeholder="Enter your ID">
-    <br>
-    <button onclick="loadAttendanceById()">Check Attendance</button>
+      <div id="attendance" class="mt-4"></div>
 
-    <br><br>
-    <button class="back-btn" onclick="goBack()">⬅ Back to Dashboard</button>
+      <div class="text-center mt-4">
+        <button class="btn btn-secondary" onclick="goBack()">⬅ Back to Dashboard</button>
+      </div>
+    </div>
   </div>
 
   <script>
     function loadAttendanceById() {
       const id = document.getElementById("studentId").value.trim();
-      if (!id) { alert("Please enter your Student ID"); return; }
+      const attendanceDiv = document.getElementById("attendance");
+      
+      if (!id) { 
+        attendanceDiv.innerHTML = '<div class="alert alert-error">Please enter your Student ID</div>';
+        return; 
+      }
+
+      // Show loading state
+      attendanceDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading attendance data...</p></div>';
 
       fetch(`http://localhost:8081/student/${id}/attendance`)
       .then(response => {
@@ -117,22 +50,71 @@
       })
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
-          let result = "<ul>";
-          data.forEach(a => {
-            result += `<li>${a.studentName} → ${a.attendancePercent}%</li>`;
+          let html = '<div class="card" style="margin-top: 20px;"><h3 style="color: #2d3748; margin-bottom: 20px;">📅 Your Attendance Record</h3>';
+          html += '<div class="grid grid-1" style="gap: 15px;">';
+          
+          data.forEach(attendance => {
+            const percentage = attendance.attendancePercent || 0;
+            const statusColor = percentage >= 80 ? '#38a169' : percentage >= 60 ? '#d69e2e' : '#e53e3e';
+            const statusText = percentage >= 80 ? 'Excellent' : percentage >= 60 ? 'Good' : 'Needs Improvement';
+            
+            html += `
+              <div class="card" style="padding: 20px; border-left: 4px solid ${statusColor};">
+                <div class="grid grid-2 align-center">
+                  <div>
+                    <h4 style="margin: 0; color: #2d3748;">${attendance.studentName}</h4>
+                    <p style="margin: 5px 0; color: #718096;">Student ID: ${id}</p>
+                    <span style="background: ${statusColor}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">${statusText}</span>
+                  </div>
+                  <div class="text-right">
+                    <span style="font-size: 2rem; font-weight: 700; color: ${statusColor};">${percentage}%</span>
+                    <p style="margin: 0; color: #718096; font-size: 0.9rem;">Attendance Rate</p>
+                  </div>
+                </div>
+                
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
+                  <div class="grid grid-3" style="gap: 15px; text-align: center;">
+                    <div>
+                      <div style="font-size: 1.2rem; font-weight: 600; color: #38a169;">✓</div>
+                      <div style="font-size: 0.8rem; color: #718096;">Present</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 1.2rem; font-weight: 600; color: #e53e3e;">✗</div>
+                      <div style="font-size: 0.8rem; color: #718096;">Absent</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 1.2rem; font-weight: 600; color: #d69e2e;">📊</div>
+                      <div style="font-size: 0.8rem; color: #718096;">Overall</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
           });
-          result += "</ul>";
-          document.getElementById("attendance").innerHTML = result;
+          
+          html += '</div></div>';
+          attendanceDiv.innerHTML = html;
         } else {
-          document.getElementById("attendance").innerText = "No attendance found.";
+          attendanceDiv.innerHTML = '<div class="alert alert-info">📅 No attendance records found for this student ID.</div>';
         }
       })
       .catch(err => {
-        document.getElementById("attendance").innerText = "❌ " + err.message;
+        attendanceDiv.innerHTML = `<div class="alert alert-error">❌ ${err.message}</div>`;
       });
     }
 
-    function goBack() { window.location.href = "student.html"; }
+    function goBack() { 
+      window.location.href = "student.html"; 
+    }
+
+    // Auto-load if student ID is in session storage
+    window.addEventListener('load', function() {
+      const studentId = sessionStorage.getItem('studentId');
+      if (studentId) {
+        document.getElementById('studentId').value = studentId;
+        loadAttendanceById();
+      }
+    });
   </script>
 </body>
 </html>

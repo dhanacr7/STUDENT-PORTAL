@@ -2,67 +2,226 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manage Teachers</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-gradient-to-r from-green-900 via-emerald-800 to-black min-h-screen flex items-center justify-center text-white">
-  <div class="bg-white/10 p-8 rounded-2xl shadow-xl w-[600px]">
-    <h1 class="text-3xl font-bold text-center mb-6 text-green-400">👨‍🏫 Manage Teachers</h1>
-
-    <!-- Add Teacher -->
-    <form id="addTeacherForm" class="mb-6">
-      <div class="grid grid-cols-2 gap-4">
-        <input type="text" id="teacherName" placeholder="Teacher Name" class="p-2 rounded bg-gray-800 text-white">
-        <input type="email" id="teacherEmail" placeholder="Email" class="p-2 rounded bg-gray-800 text-white">
+<body>
+  <div class="container">
+    <div class="fade-in">
+      <!-- Header -->
+      <div class="nav">
+        <div class="nav-brand">👩‍🏫 Manage Teachers</div>
+        <div class="nav-links">
+          <button onclick="loadTeachers()" class="btn btn-info">🔄 Refresh</button>
+          <button onclick="showAddForm()" class="btn btn-success">➕ Add Teacher</button>
+          <a href="admin_dashboard.html" class="btn btn-secondary">⬅ Dashboard</a>
+        </div>
       </div>
-      <input type="password" id="teacherPassword" placeholder="Password" class="p-2 rounded bg-gray-800 text-white w-full mt-4">
-      <button type="submit" class="w-full mt-4 bg-green-500 hover:bg-green-600 py-2 rounded-lg font-bold">➕ Add Teacher</button>
-    </form>
 
-    <!-- Teacher List -->
-    <h2 class="text-xl mb-3 text-yellow-400">Teacher List</h2>
-    <ul id="teacherList" class="space-y-2"></ul>
+      <!-- Add Teacher Form (Hidden by default) -->
+      <div id="addTeacherForm" class="card hidden slide-up">
+        <h2>➕ Add New Teacher</h2>
+        <div class="grid grid-2">
+          <div class="form-group">
+            <input type="text" id="teacherName" placeholder="👤 Full Name" class="form-control">
+          </div>
+          <div class="form-group">
+            <input type="email" id="teacherEmail" placeholder="📧 Email Address" class="form-control">
+          </div>
+          <div class="form-group">
+            <input type="text" id="teacherDepartment" placeholder="🏢 Department" class="form-control">
+          </div>
+          <div class="form-group">
+            <input type="text" id="teacherId" placeholder="🆔 Teacher ID" class="form-control">
+          </div>
+        </div>
+        <div class="form-group">
+          <input type="password" id="teacherPassword" placeholder="🔒 Password" class="form-control">
+        </div>
+        
+        <div class="grid grid-2" style="gap: 15px;">
+          <button onclick="addTeacher()" class="btn btn-success">✅ Add Teacher</button>
+          <button onclick="hideAddForm()" class="btn btn-danger">❌ Cancel</button>
+        </div>
+        
+        <div id="addMessage" class="mt-3"></div>
+      </div>
+
+      <!-- Teachers List -->
+      <div class="card">
+        <h2>📋 Teacher Directory</h2>
+        <div id="teachersList">
+          <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading teachers...</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    const teacherForm = document.getElementById("addTeacherForm");
-    const teacherList = document.getElementById("teacherList");
-
-    teacherForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const name = document.getElementById("teacherName").value;
-      const email = document.getElementById("teacherEmail").value;
-      const password = document.getElementById("teacherPassword").value;
-
-      const res = await fetch("http://localhost:8081/admin/addTeacher", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password })
-      });
-
-      alert(await res.text());
+    // Load teachers on page load
+    window.onload = function() {
       loadTeachers();
-    });
+    };
 
-    async function loadTeachers() {
-      const res = await fetch("http://localhost:8081/admin/teachers");
-      const teachers = await res.json();
-      teacherList.innerHTML = "";
-      teachers.forEach(t => {
-        const li = document.createElement("li");
-        li.className = "bg-gray-800 p-2 rounded flex justify-between items-center";
-        li.innerHTML = `<span>${t.name} (${t.email})</span>
-          <button onclick="deleteTeacher(${t.id})" class='text-red-400 hover:text-red-600'>🗑️</button>`;
-        teacherList.appendChild(li);
+    function loadTeachers() {
+      const container = document.getElementById('teachersList');
+      container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading teachers...</p></div>';
+
+      fetch('http://localhost:8081/admin/list-teachers')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .then(teachers => {
+          displayTeachers(teachers);
+        })
+        .catch(error => {
+          console.error('Error loading teachers:', error);
+          container.innerHTML = `
+            <div class="text-center p-4">
+              <div class="alert alert-warning">
+                <h3>⚠️ No teachers available to manage</h3>
+                <p>This could be because:</p>
+                <ul style="text-align: left; margin: 15px 0;">
+                  <li>• No teachers have been added to the system yet</li>
+                  <li>• Only admins can add teachers (teachers cannot self-register)</li>
+                  <li>• Database connection issue: ${error.message}</li>
+                </ul>
+                <div class="grid grid-2" style="gap: 15px; margin-top: 20px;">
+                  <button onclick="loadTeachers()" class="btn btn-info">🔄 Try Again</button>
+                  <button onclick="showAddForm()" class="btn btn-success">➕ Add First Teacher</button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+    }
+
+    function displayTeachers(teachers) {
+      const container = document.getElementById('teachersList');
+      
+      if (!teachers || teachers.length === 0) {
+        container.innerHTML = `
+          <div class="text-center p-4">
+            <div class="alert alert-info">
+              <h3>👩‍🏫 No teachers found</h3>
+              <p>Teachers must be added by administrators.</p>
+              <button onclick="showAddForm()" class="btn btn-success mt-3">➕ Add First Teacher</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '<div class="grid grid-1" style="gap: 20px;">';
+      teachers.forEach(teacher => {
+        html += `
+          <div class="card" style="padding: 20px;">
+            <div class="grid grid-2 align-center">
+              <div>
+                <h3 style="margin-bottom: 10px; color: #2d3748;">${teacher.name || 'N/A'}</h3>
+                <p style="color: #718096; margin: 5px 0;">📧 ${teacher.email || 'N/A'}</p>
+                <p style="color: #718096; margin: 5px 0;">🏢 ${teacher.department || 'N/A'}</p>
+                <p style="color: #718096; margin: 5px 0;">🆔 ID: ${teacher.id}</p>
+              </div>
+              <div class="text-right">
+                <div class="grid grid-1" style="gap: 10px;">
+                  <button onclick="editTeacher(${teacher.id})" class="btn btn-warning">✏️ Edit</button>
+                  <button onclick="deleteTeacher(${teacher.id}, '${teacher.name || 'Teacher'}')" class="btn btn-danger">🗑️ Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      
+      container.innerHTML = html;
+    }
+
+    function showAddForm() {
+      document.getElementById('addTeacherForm').classList.remove('hidden');
+      document.getElementById('addTeacherForm').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function hideAddForm() {
+      document.getElementById('addTeacherForm').classList.add('hidden');
+      clearAddForm();
+    }
+
+    function clearAddForm() {
+      document.getElementById('teacherName').value = '';
+      document.getElementById('teacherEmail').value = '';
+      document.getElementById('teacherDepartment').value = '';
+      document.getElementById('teacherId').value = '';
+      document.getElementById('teacherPassword').value = '';
+      document.getElementById('addMessage').innerHTML = '';
+    }
+
+    function addTeacher() {
+      const data = {
+        name: document.getElementById('teacherName').value,
+        email: document.getElementById('teacherEmail').value,
+        department: document.getElementById('teacherDepartment').value,
+        teacherId: document.getElementById('teacherId').value,
+        password: document.getElementById('teacherPassword').value
+      };
+
+      const messageDiv = document.getElementById('addMessage');
+
+      if (!data.name || !data.email || !data.password) {
+        messageDiv.innerHTML = '<div class="alert alert-error">Please fill in all required fields</div>';
+        return;
+      }
+
+      messageDiv.innerHTML = '<div class="alert alert-info">🔄 Adding teacher...</div>';
+
+      fetch('http://localhost:8081/admin/add-teacher', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.text())
+      .then(result => {
+        if (result.includes('successfully')) {
+          messageDiv.innerHTML = '<div class="alert alert-success">✅ ' + result + '</div>';
+          clearAddForm();
+          loadTeachers(); // Refresh the list
+          setTimeout(hideAddForm, 2000); // Hide form after 2 seconds
+        } else {
+          messageDiv.innerHTML = '<div class="alert alert-error">❌ ' + result + '</div>';
+        }
+      })
+      .catch(error => {
+        messageDiv.innerHTML = '<div class="alert alert-error">❌ Error: ' + error.message + '</div>';
       });
     }
 
-    async function deleteTeacher(id) {
-      await fetch(`http://localhost:8081/admin/deleteTeacher/${id}`, { method: "DELETE" });
-      loadTeachers();
+    function deleteTeacher(id, name) {
+      if (confirm(`Are you sure you want to delete teacher "${name}"?`)) {
+        fetch(`http://localhost:8081/admin/delete-teacher/${id}`, {
+          method: 'DELETE'
+        })
+        .then(response => response.text())
+        .then(result => {
+          alert('✅ ' + result);
+          loadTeachers(); // Refresh the list
+        })
+        .catch(error => {
+          alert('❌ Error deleting teacher: ' + error.message);
+        });
+      }
     }
 
-    loadTeachers();
+    function editTeacher(id) {
+      alert('✏️ Edit functionality will be implemented soon!');
+    }
   </script>
 </body>
 </html>

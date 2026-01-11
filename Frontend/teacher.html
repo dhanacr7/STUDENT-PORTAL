@@ -1,49 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Teacher Dashboard</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f7fc;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-    .dashboard {
-      margin-top: 60px;
-    }
-    h2 {
-      color: #2c3e50;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    li {
-      margin: 15px 0;
-    }
-    a {
-      text-decoration: none;
-      background: #27ae60;
-      color: white;
-      padding: 12px 25px;
-      border-radius: 8px;
-      transition: 0.3s;
-    }
-    a:hover {
-      background: #1e8449;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <div class="dashboard">
-    <h2>📘 Welcome, Teacher!</h2>
-    <ul>
-      <li><a href="enter_exam_results.html">✍️ Enter Exam Results</a></li>
-      <li><a href="edit_attendance.html">📝 Edit Attendance Percentage</a></li>
-      <li><a href="teacher_profile.html">🙍 Personal Details</a></li>
-    </ul>
+<body class="dashboard-page">
+  <div class="container">
+    <div class="fade-in">
+      <!-- Header -->
+      <div class="dashboard-header">
+        <h1>📘 Teacher Dashboard</h1>
+        <p style="color: #718096; font-size: 1.1rem;">Welcome back, Educator!</p>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-number">✍️</span>
+          <span class="stat-label">Grade Management</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">📝</span>
+          <span class="stat-label">Attendance Control</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">👤</span>
+          <span class="stat-label">Profile Settings</span>
+        </div>
+      </div>
+
+      <!-- Main Actions -->
+      <div class="card">
+        <h2>📋 Teaching Tools</h2>
+        <div class="action-grid">
+          <div class="action-card">
+            <span class="action-icon">✍️</span>
+            <h3 class="action-title">Exam Results</h3>
+            <p class="action-description">Enter and manage student exam scores and grades</p>
+            <a href="enter_exam_results.html" class="btn btn-primary btn-block">Enter Results</a>
+          </div>
+
+          <div class="action-card">
+            <span class="action-icon">📝</span>
+            <h3 class="action-title">Attendance</h3>
+            <p class="action-description">Update and manage student attendance records</p>
+            <a href="edit_attendance.html" class="btn btn-success btn-block">Edit Attendance</a>
+          </div>
+
+          <div class="action-card">
+            <span class="action-icon">👤</span>
+            <h3 class="action-title">Profile</h3>
+            <p class="action-description">Manage your personal details and teaching preferences</p>
+            <a href="teacher_profile.html" class="btn btn-info btn-block">My Profile</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Tools -->
+      <div class="card">
+        <h2>🛠️ Additional Tools</h2>
+        <div class="grid grid-3" style="gap: 15px;">
+          <a href="view_exam_results.html" class="btn btn-secondary">📊 View All Results</a>
+          <a href="view_attendance.html" class="btn btn-warning">📅 View Attendance</a>
+          <a href="manage_students.html" class="btn btn-info">👥 Student List</a>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="card">
+        <h2>🧭 Navigation</h2>
+        <div class="grid grid-2" style="gap: 15px;">
+          <a href="home.html" class="btn btn-secondary">🏠 Back to Home</a>
+          <a href="teacher_login.html" class="btn btn-warning">🔄 Switch Account</a>
+        </div>
+      </div>
+    </div>
   </div>
 </body>
 </html>

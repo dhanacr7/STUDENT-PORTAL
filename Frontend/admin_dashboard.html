@@ -1,102 +1,98 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f7fc;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-    .dashboard {
-      margin-top: 60px;
-    }
-    h2 {
-      color: #2c3e50;
-    }
-    .stats {
-      margin: 20px auto;
-      padding: 20px;
-      background: white;
-      border-radius: 8px;
-      width: 300px;
-      box-shadow: 0px 3px 6px rgba(0,0,0,0.1);
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    li {
-      margin: 15px 0;
-    }
-    a {
-      text-decoration: none;
-      background: #e67e22;
-      color: white;
-      padding: 12px 25px;
-      border-radius: 8px;
-      transition: 0.3s;
-      display: inline-block;
-      margin: 5px;
-    }
-    a:hover {
-      background: #d35400;
-    }
-    .add-admin-btn {
-      background: #27ae60;
-      color: white;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      font-size: 30px;
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-    }
-    .add-admin-btn:hover {
-      background: #219653;
-      transform: scale(1.1);
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <div class="dashboard">
-    <h2>⚙️ Welcome, Admin!</h2>
+<body class="dashboard-page">
+  <div class="container">
+    <div class="fade-in">
+      <!-- Header -->
+      <div class="dashboard-header">
+        <h1>⚙️ Admin Dashboard</h1>
+        <p style="color: #718096; font-size: 1.1rem;">Welcome back, Administrator</p>
+      </div>
 
-    <div class="stats">
-      <h3>📊 Stats</h3>
-      <p id="studentsCount">Students: ...</p>
-      <p id="teachersCount">Teachers: ...</p>
-      <p id="adminsCount">Admins: ...</p>
+      <!-- Stats Section -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-number" id="studentsCount">...</span>
+          <span class="stat-label">👨‍🎓 Students</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" id="teachersCount">...</span>
+          <span class="stat-label">👩‍🏫 Teachers</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" id="adminsCount">...</span>
+          <span class="stat-label">⚙️ Admins</span>
+        </div>
+      </div>
+
+      <!-- Management Actions -->
+      <div class="card">
+        <h2>📋 Management Tools</h2>
+        <div class="action-grid">
+          <div class="action-card">
+            <span class="action-icon">👨‍🎓</span>
+            <h3 class="action-title">Student Management</h3>
+            <p class="action-description">Add, edit, and manage student accounts and records</p>
+            <a href="manage_students.html" class="btn btn-primary btn-block">Manage Students</a>
+          </div>
+
+          <div class="action-card">
+            <span class="action-icon">👩‍🏫</span>
+            <h3 class="action-title">Teacher Management</h3>
+            <p class="action-description">Add, edit, and manage teacher accounts and permissions</p>
+            <a href="manage_teachers.html" class="btn btn-success btn-block">Manage Teachers</a>
+          </div>
+
+          <div class="action-card">
+            <span class="action-icon">⚙️</span>
+            <h3 class="action-title">Admin Management</h3>
+            <p class="action-description">Add new administrators and manage system access</p>
+            <a href="manage_admins.html" class="btn btn-warning btn-block">Manage Admins</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="card">
+        <h2>⚡ Quick Actions</h2>
+        <div class="grid grid-4" style="gap: 15px;">
+          <a href="add_admin.html" class="btn btn-info">➕ Add Admin</a>
+          <a href="add_teacher.html" class="btn btn-success">➕ Add Teacher</a>
+          <a href="create_admin_test.html" class="btn btn-secondary">📝 Create Test</a>
+          <a href="home.html" class="btn btn-primary">🏠 Home</a>
+        </div>
+      </div>
     </div>
-
-    <ul>
-      <li><a href="manage_students.html">👨‍🎓 Manage Students</a></li>
-      <li><a href="manage_teachers.html">👩‍🏫 Manage Teachers</a></li>
-    </ul>
-
-    <!-- + Button to add new admin -->
-    <a href="add_admin.html" class="add-admin-btn">+</a>
   </div>
 
+  <!-- Floating Add Button -->
+  <a href="add_admin.html" class="fab" title="Add New Admin">
+    ➕
+  </a>
+
   <script>
-    fetch("http://localhost:8081/admin/stats")
-      .then(r => r.json())
-      .then(d => {
-        document.getElementById("studentsCount").innerText = "Students: " + d.students;
-        document.getElementById("teachersCount").innerText = "Teachers: " + d.teachers;
-        document.getElementById("adminsCount").innerText = "Admins: " + d.admins;
-      })
-      .catch(error => {
-        console.error("Error fetching stats:", error);
-      });
+    // Load stats on page load
+    window.addEventListener('load', function() {
+      fetch("http://localhost:8081/admin/stats")
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("studentsCount").innerText = data.students || 0;
+          document.getElementById("teachersCount").innerText = data.teachers || 0;
+          document.getElementById("adminsCount").innerText = data.admins || 0;
+        })
+        .catch(error => {
+          console.error("Error fetching stats:", error);
+          document.getElementById("studentsCount").innerText = "0";
+          document.getElementById("teachersCount").innerText = "0";
+          document.getElementById("adminsCount").innerText = "0";
+        });
+    });
   </script>
 </body>
 </html>

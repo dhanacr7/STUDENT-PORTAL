@@ -2,60 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Login</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #43e97b, #38f9d7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
-      width: 350px;
-      text-align: center;
-    }
-    h2 { color: #333; margin-bottom: 20px; }
-    input {
-      width: 90%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    button {
-      width: 95%;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      background: #43e97b;
-      color: #fff;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:hover { background: #38f9d7; }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
-    <h2>🔑 Student Login</h2>
-    <form onsubmit="event.preventDefault(); loginStudent();">
-      <input type="email" id="studentEmail" placeholder="Email" required><br>
-      <input type="password" id="studentPassword" placeholder="Password" required><br>
-      <button type="submit">Login</button>
-    </form>
+  <div class="container" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+    <div class="card fade-in" style="max-width: 400px; width: 100%;">
+      <div class="text-center mb-4">
+        <h2>🔑 Student Login</h2>
+        <p style="color: #718096;">Access your academic portal</p>
+      </div>
+
+      <form onsubmit="event.preventDefault(); loginStudent();">
+        <div class="form-group">
+          <input type="email" id="studentEmail" placeholder="📧 Enter your email" required class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <input type="password" id="studentPassword" placeholder="🔒 Enter your password" required class="form-control">
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-block">
+          🚀 Login to Portal
+        </button>
+      </form>
+
+      <div class="text-center mt-3">
+        <p style="color: #718096; font-size: 0.9rem;">
+          Don't have an account? 
+          <a href="student_signup.html" style="color: #667eea; text-decoration: none; font-weight: 600;">Sign up here</a>
+        </p>
+        <a href="home.html" style="color: #718096; text-decoration: none; font-size: 0.9rem;">
+          ← Back to Home
+        </a>
+      </div>
+
+      <div id="loginMessage" class="mt-3"></div>
+    </div>
   </div>
 
   <script>
     function loginStudent() {
       const email = document.getElementById("studentEmail").value;
       const password = document.getElementById("studentPassword").value;
+      const messageDiv = document.getElementById("loginMessage");
+
+      // Show loading state
+      messageDiv.innerHTML = '<div class="alert alert-info">🔄 Logging in...</div>';
 
       fetch("http://localhost:8081/student/login", {
         method: "POST",
@@ -69,10 +63,16 @@
       .then(student => {
         sessionStorage.setItem("studentId", student.id);
         sessionStorage.setItem("studentName", student.name);
-        alert("✅ Login successful! Welcome, " + student.name);
-        window.location.href = "student.html";
+        
+        messageDiv.innerHTML = `<div class="alert alert-success">✅ Welcome back, ${student.name}!</div>`;
+        
+        setTimeout(() => {
+          window.location.href = "student.html";
+        }, 1500);
       })
-      .catch(error => alert("❌ " + error.message));
+      .catch(error => {
+        messageDiv.innerHTML = `<div class="alert alert-error">❌ ${error.message}</div>`;
+      });
     }
   </script>
 </body>

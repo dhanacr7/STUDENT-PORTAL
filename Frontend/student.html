@@ -1,49 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Dashboard</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f7fc;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-    .dashboard {
-      margin-top: 60px;
-    }
-    h2 {
-      color: #2c3e50;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    li {
-      margin: 15px 0;
-    }
-    a {
-      text-decoration: none;
-      background: #3498db;
-      color: white;
-      padding: 12px 25px;
-      border-radius: 8px;
-      transition: 0.3s;
-    }
-    a:hover {
-      background: #2980b9;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <div class="dashboard">
-    <h2>🎓 Welcome, Student!</h2>
-    <ul>
-      <li><a href="view_exam_results.html">📄 View Exam Results</a></li>
-      <li><a href="view_attendance.html">📊 View Attendance Percentage</a></li>
-      <li><a href="student_profile.html">🙍 Personal Details</a></li>
-    </ul>
+<body class="dashboard-page">
+  <div class="container">
+    <div class="fade-in">
+      <!-- Header -->
+      <div class="dashboard-header">
+        <h1>🎓 Student Dashboard</h1>
+        <p style="color: #718096; font-size: 1.1rem;" id="welcomeMessage">Welcome back, Student!</p>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-number">📊</span>
+          <span class="stat-label">Academic Records</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">📅</span>
+          <span class="stat-label">Attendance Tracking</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">👤</span>
+          <span class="stat-label">Profile Management</span>
+        </div>
+      </div>
+
+      <!-- Main Actions -->
+      <div class="card">
+        <h2>📋 Student Services</h2>
+        <div class="action-grid">
+          <div class="action-card">
+            <span class="action-icon">📄</span>
+            <h3 class="action-title">Exam Results</h3>
+            <p class="action-description">View your latest exam scores and academic performance</p>
+            <a href="view_exam_results.html" class="btn btn-primary btn-block">View Results</a>
+          </div>
+
+          <div class="action-card">
+            <span class="action-icon">📊</span>
+            <h3 class="action-title">Attendance</h3>
+            <p class="action-description">Check your attendance percentage and class records</p>
+            <a href="view_attendance.html" class="btn btn-success btn-block">View Attendance</a>
+          </div>
+
+          <div class="action-card">
+            <span class="action-icon">👤</span>
+            <h3 class="action-title">Profile</h3>
+            <p class="action-description">Manage your personal details and account settings</p>
+            <a href="student_profile.html" class="btn btn-info btn-block">My Profile</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="card">
+        <h2>🧭 Navigation</h2>
+        <div class="grid grid-2" style="gap: 15px;">
+          <a href="home.html" class="btn btn-secondary">🏠 Back to Home</a>
+          <a href="student_login.html" class="btn btn-warning">🔄 Switch Account</a>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <script>
+    // Display student name if available
+    window.addEventListener('load', function() {
+      const studentName = sessionStorage.getItem('studentName');
+      if (studentName) {
+        document.getElementById('welcomeMessage').textContent = `Welcome back, ${studentName}!`;
+      }
+    });
+  </script>
 </body>
 </html>

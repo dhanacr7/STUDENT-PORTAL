@@ -2,74 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>View Marks</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #333;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background: #fff;
-      padding: 30px;
-      border-radius: 15px;
-      width: 420px;
-      text-align: center;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    }
-    h2 {
-      margin-bottom: 15px;
-      color: #4a4a4a;
-    }
-    input, button {
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      width: 80%;
-    }
-    button {
-      background: #667eea;
-      color: white;
-      cursor: pointer;
-      border: none;
-      transition: 0.3s;
-    }
-    button:hover {
-      background: #5563c1;
-    }
-    #marksList {
-      margin-top: 15px;
-      text-align: left;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-    ul {
-      padding-left: 20px;
-    }
-    .back-btn {
-      margin-top: 15px;
-      background: #ff6b6b;
-    }
-    .back-btn:hover {
-      background: #e05555;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Exam Results</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
-    <h2>📄 Your Exam Results</h2>
-    <input type="number" id="studentId" placeholder="Enter your Student ID">
-    <button id="checkBtn">Check Marks</button>
+  <div class="container" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+    <div class="card fade-in" style="max-width: 500px; width: 100%;">
+      <div class="text-center mb-4">
+        <h2>📄 Your Exam Results</h2>
+        <p style="color: #718096;">Check your academic performance</p>
+      </div>
 
-    <div id="marksList"></div>
+      <div class="form-group">
+        <input type="number" id="studentId" placeholder="🆔 Enter your Student ID" class="form-control">
+      </div>
+      
+      <button id="checkBtn" class="btn btn-primary btn-block">
+        🔍 Check My Results
+      </button>
 
-    <button class="back-btn" onclick="goBack()">⬅ Back to Dashboard</button>
+      <div id="marksList" class="mt-4"></div>
+
+      <div class="text-center mt-4">
+        <button class="btn btn-secondary" onclick="goBack()">⬅ Back to Dashboard</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -77,7 +35,15 @@
 
     function loadMarksById() {
       const id = document.getElementById("studentId").value.trim();
-      if (!id) { alert("Please enter your Student ID"); return; }
+      const resultsDiv = document.getElementById("marksList");
+      
+      if (!id) { 
+        resultsDiv.innerHTML = '<div class="alert alert-error">Please enter your Student ID</div>';
+        return; 
+      }
+
+      // Show loading state
+      resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading your results...</p></div>';
 
       fetch(`http://localhost:8081/student/${id}/marks`)
         .then(response => {
@@ -86,24 +52,52 @@
         })
         .then(data => {
           if (Array.isArray(data) && data.length > 0) {
-            let html = "<ul>";
-            data.forEach(m => {
-              html += `<li><b>Subject:</b> ${m.subject ? m.subject : "N/A"}<br><b>Student:</b> ${m.studentName}<br><b>Marks:</b> ${m.marks}</li><hr>`;
+            let html = '<div class="card" style="margin-top: 20px;"><h3 style="color: #2d3748; margin-bottom: 20px;">📊 Your Academic Results</h3>';
+            html += '<div class="grid grid-1" style="gap: 15px;">';
+            
+            data.forEach(mark => {
+              const percentage = mark.marks ? ((mark.marks / 100) * 100).toFixed(1) : 'N/A';
+              const gradeColor = mark.marks >= 80 ? '#38a169' : mark.marks >= 60 ? '#d69e2e' : '#e53e3e';
+              
+              html += `
+                <div class="card" style="padding: 15px; border-left: 4px solid ${gradeColor};">
+                  <div class="grid grid-2 align-center">
+                    <div>
+                      <h4 style="margin: 0; color: #2d3748;">${mark.subject || "N/A"}</h4>
+                      <p style="margin: 5px 0; color: #718096;">Student: ${mark.studentName}</p>
+                    </div>
+                    <div class="text-right">
+                      <span style="font-size: 1.5rem; font-weight: 700; color: ${gradeColor};">${mark.marks}/100</span>
+                      <p style="margin: 0; color: #718096; font-size: 0.9rem;">${percentage}%</p>
+                    </div>
+                  </div>
+                </div>
+              `;
             });
-            html += "</ul>";
-            document.getElementById("marksList").innerHTML = html;
+            
+            html += '</div></div>';
+            resultsDiv.innerHTML = html;
           } else {
-            document.getElementById("marksList").innerText = "No marks found.";
+            resultsDiv.innerHTML = '<div class="alert alert-info">📚 No exam results found for this student ID.</div>';
           }
         })
         .catch(err => {
-          document.getElementById("marksList").innerText = "❌ " + err.message;
+          resultsDiv.innerHTML = `<div class="alert alert-error">❌ ${err.message}</div>`;
         });
     }
 
     function goBack() {
-      window.location.href = "student.html"; // adjust as needed
+      window.location.href = "student.html";
     }
+
+    // Auto-load if student ID is in session storage
+    window.addEventListener('load', function() {
+      const studentId = sessionStorage.getItem('studentId');
+      if (studentId) {
+        document.getElementById('studentId').value = studentId;
+        loadMarksById();
+      }
+    });
   </script>
 </body>
 </html>

@@ -2,55 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Signup</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #4facfe, #00f2fe);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
-      width: 350px;
-      text-align: center;
-    }
-    h2 { color: #333; margin-bottom: 20px; }
-    input {
-      width: 90%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    button {
-      width: 95%;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      background: #4facfe;
-      color: #fff;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:hover { background: #00c6fb; }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
-    <h2>📝 Student Signup</h2>
-    <form onsubmit="event.preventDefault(); signupStudent();">
-      <input type="text" id="studentName" placeholder="Full Name" required><br>
-      <input type="email" id="studentEmail" placeholder="Email" required><br>
-      <input type="password" id="studentPassword" placeholder="Password" required><br>
-      <button type="submit">Sign Up</button>
-    </form>
+  <div class="container" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+    <div class="card fade-in" style="max-width: 400px; width: 100%;">
+      <div class="text-center mb-4">
+        <h2>📝 Student Registration</h2>
+        <p style="color: #718096;">Create your student account</p>
+      </div>
+
+      <form onsubmit="event.preventDefault(); signupStudent();">
+        <div class="form-group">
+          <input type="text" id="studentName" placeholder="👤 Full Name" required class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <input type="email" id="studentEmail" placeholder="📧 Email Address" required class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <input type="text" id="studentDepartment" placeholder="🏢 Department (Optional)" class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <input type="password" id="studentPassword" placeholder="🔒 Create Password" required class="form-control">
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-block">
+          🚀 Create Account
+        </button>
+      </form>
+
+      <div class="text-center mt-3">
+        <p style="color: #718096; font-size: 0.9rem;">
+          Already have an account? 
+          <a href="student_login.html" style="color: #667eea; text-decoration: none; font-weight: 600;">Login here</a>
+        </p>
+        <a href="home.html" style="color: #718096; text-decoration: none; font-size: 0.9rem;">
+          ← Back to Home
+        </a>
+      </div>
+
+      <div id="signupMessage" class="mt-3"></div>
+    </div>
   </div>
 
   <script>
@@ -58,8 +55,20 @@
       const studentData = {
         name: document.getElementById("studentName").value,
         email: document.getElementById("studentEmail").value,
+        department: document.getElementById("studentDepartment").value || "General",
         password: document.getElementById("studentPassword").value
       };
+
+      const messageDiv = document.getElementById("signupMessage");
+
+      // Validation
+      if (!studentData.name || !studentData.email || !studentData.password) {
+        messageDiv.innerHTML = '<div class="alert alert-error">Please fill in all required fields</div>';
+        return;
+      }
+
+      // Show loading state
+      messageDiv.innerHTML = '<div class="alert alert-info">🔄 Creating your account...</div>';
 
       fetch("http://localhost:8081/student/signup", {
         method: "POST",
@@ -67,8 +76,25 @@
         body: JSON.stringify(studentData)
       })
       .then(response => response.text())
-      .then(data => alert("✅ " + data))
-      .catch(error => console.error("Error:", error));
+      .then(data => {
+        if (data.includes("successfully") || data.includes("created")) {
+          messageDiv.innerHTML = '<div class="alert alert-success">✅ ' + data + '</div>';
+          
+          // Clear form
+          document.querySelector("form").reset();
+          
+          // Redirect to login after 2 seconds
+          setTimeout(() => {
+            window.location.href = "student_login.html";
+          }, 2000);
+        } else {
+          messageDiv.innerHTML = '<div class="alert alert-error">❌ ' + data + '</div>';
+        }
+      })
+      .catch(error => {
+        messageDiv.innerHTML = '<div class="alert alert-error">❌ Network error. Please try again.</div>';
+        console.error("Error:", error);
+      });
     }
   </script>
 </body>

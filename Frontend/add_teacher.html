@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add New Teacher</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+    <div class="card fade-in" style="max-width: 450px; width: 100%;">
+      <div class="text-center mb-4">
+        <h2>👩‍🏫 Add New Teacher</h2>
+        <p style="color: #718096;">Create teacher account</p>
+      </div>
+
+      <form onsubmit="event.preventDefault(); addTeacher();">
+        <div class="grid grid-2">
+          <div class="form-group">
+            <input type="text" id="teacherName" placeholder="👤 Full Name" required class="form-control">
+          </div>
+          <div class="form-group">
+            <input type="email" id="teacherEmail" placeholder="📧 Email Address" required class="form-control">
+          </div>
+        </div>
+        
+        <div class="grid grid-2">
+          <div class="form-group">
+            <input type="text" id="teacherDepartment" placeholder="🏢 Department" required class="form-control">
+          </div>
+          <div class="form-group">
+            <input type="text" id="teacherId" placeholder="🆔 Teacher ID" required class="form-control">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <input type="password" id="teacherPassword" placeholder="🔒 Password" required class="form-control">
+        </div>
+        
+        <button type="submit" class="btn btn-success btn-block">
+          ➕ Create Teacher Account
+        </button>
+      </form>
+
+      <div class="text-center mt-3">
+        <a href="admin_dashboard.html" style="color: #718096; text-decoration: none; font-size: 0.9rem;">
+          ← Back to Dashboard
+        </a>
+      </div>
+
+      <div id="message" class="mt-3"></div>
+    </div>
+  </div>
+
+  <script>
+    function addTeacher() {
+      const teacherData = {
+        name: document.getElementById("teacherName").value,
+        email: document.getElementById("teacherEmail").value,
+        department: document.getElementById("teacherDepartment").value,
+        teacherId: document.getElementById("teacherId").value,
+        password: document.getElementById("teacherPassword").value
+      };
+
+      const messageDiv = document.getElementById("message");
+
+      // Validation
+      if (!teacherData.name || !teacherData.email || !teacherData.department || !teacherData.teacherId || !teacherData.password) {
+        messageDiv.innerHTML = '<div class="alert alert-error">Please fill in all fields</div>';
+        return;
+      }
+
+      // Show loading state
+      messageDiv.innerHTML = '<div class="alert alert-info">🔄 Creating teacher account...</div>';
+
+      fetch("http://localhost:8081/admin/add-teacher", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(teacherData)
+      })
+      .then(response => response.text())
+      .then(data => {
+        if (data.includes("successfully")) {
+          messageDiv.innerHTML = '<div class="alert alert-success">✅ ' + data + '</div>';
+          document.querySelector("form").reset();
+          
+          // Redirect after 2 seconds
+          setTimeout(() => {
+            window.location.href = "admin_dashboard.html";
+          }, 2000);
+        } else {
+          messageDiv.innerHTML = '<div class="alert alert-error">❌ ' + data + '</div>';
+        }
+      })
+      .catch(error => {
+        messageDiv.innerHTML = '<div class="alert alert-error">❌ Network error. Please try again.</div>';
+        console.error("Error:", error);
+      });
+    }
+  </script>
+</body>
+</html>

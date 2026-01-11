@@ -4,33 +4,41 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add New Admin</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body class="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
+<body>
+  <div class="container" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+    <div class="card fade-in" style="max-width: 400px; width: 100%;">
+      <div class="text-center mb-4">
+        <h2>👨‍💼 Add New Admin</h2>
+        <p style="color: #718096;">Create administrator account</p>
+      </div>
 
-  <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
-    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">👨‍💼 Add New Admin</h2>
-    
-    <form id="addAdminForm" class="space-y-4">
-      <input type="text" id="adminName" placeholder="Full Name" required 
-        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-      
-      <input type="email" id="adminEmail" placeholder="Email" required 
-        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-      
-      <input type="password" id="adminPassword" placeholder="Password" required 
-        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-      
-      <button type="submit" 
-        class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
-        Add Admin
-      </button>
-    </form>
+      <form id="addAdminForm">
+        <div class="form-group">
+          <input type="text" id="adminName" placeholder="👤 Full Name" required class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <input type="email" id="adminEmail" placeholder="📧 Email Address" required class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <input type="password" id="adminPassword" placeholder="🔒 Admin Password" required class="form-control">
+        </div>
+        
+        <button type="submit" class="btn btn-warning btn-block">
+          ➕ Create Admin Account
+        </button>
+      </form>
 
-    <div id="responseMessage" class="mt-4 text-center font-semibold"></div>
+      <div class="text-center mt-3">
+        <a href="admin_dashboard.html" style="color: #718096; text-decoration: none; font-size: 0.9rem;">
+          ← Back to Dashboard
+        </a>
+      </div>
 
-    <div class="text-center mt-4">
-      <a href="admin_dashboard.html" class="text-blue-600 hover:underline">← Back to Dashboard</a>
+      <div id="responseMessage" class="mt-3"></div>
     </div>
   </div>
 
@@ -44,6 +52,17 @@
         password: document.getElementById("adminPassword").value
       };
 
+      const messageDiv = document.getElementById("responseMessage");
+
+      // Validation
+      if (!adminData.name || !adminData.email || !adminData.password) {
+        messageDiv.innerHTML = '<div class="alert alert-error">Please fill in all fields</div>';
+        return;
+      }
+
+      // Show loading state
+      messageDiv.innerHTML = '<div class="alert alert-info">🔄 Creating admin account...</div>';
+
       try {
         const response = await fetch("http://localhost:8081/admin/add", {
           method: "POST",
@@ -54,11 +73,9 @@
         });
 
         const result = await response.text();
-        const responseElement = document.getElementById("responseMessage");
         
         if (response.ok) {
-          responseElement.style.color = "green";
-          responseElement.textContent = "✅ " + result;
+          messageDiv.innerHTML = '<div class="alert alert-success">✅ ' + result + '</div>';
           
           // Clear form on success
           document.getElementById("addAdminForm").reset();
@@ -68,13 +85,11 @@
             window.location.href = "admin_dashboard.html";
           }, 2000);
         } else {
-          responseElement.style.color = "red";
-          responseElement.textContent = "❌ " + result;
+          messageDiv.innerHTML = '<div class="alert alert-error">❌ ' + result + '</div>';
         }
       } catch (error) {
         console.error("Error:", error);
-        document.getElementById("responseMessage").style.color = "red";
-        document.getElementById("responseMessage").textContent = "❌ Network error. Please try again.";
+        messageDiv.innerHTML = '<div class="alert alert-error">❌ Network error. Please try again.</div>';
       }
     });
   </script>
